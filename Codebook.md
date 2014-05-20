@@ -14,9 +14,7 @@ Attribute Information
 For each record in the dataset it is provided:
 - Triaxial acceleration from the accelerometer (total acceleration) and the estimated body acceleration.
 - Triaxial Angular velocity from the gyroscope.
-- A 561-feature vector with time and frequency domain variables.
 - Its activity label.
-- An identifier of the subject who carried out the experiment. 
 
 Citation Request
 -----------------------
@@ -24,6 +22,10 @@ Citation Request
 [1] Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. Human Activity Recognition on Smartphones using a Multiclass Hardware-Friendly Support Vector Machine. International Workshop of Ambient Assisted Living (IWAAL 2012). Vitoria-Gasteiz, Spain. Dec 2012
 
 http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
+
+
+### Variable Descriptions
+
 
 | Variable | Description
 -----------|-------------
@@ -95,18 +97,3 @@ http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartpho
 | fbodybodygyrojerkmag.mean | Mean frequency of magnitude of body gyroscope jerk measurement
 | fbodybodygyrojerkmag.std | Standard deviation frequency of magnitude of body gyroscope jerk measurement
 | activity | The activity performed
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
