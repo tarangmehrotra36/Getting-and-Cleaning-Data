@@ -35,5 +35,3 @@ run_analysis.R
 7. The *mean* of activities and subjects are created into a separate tidy data set which is exported into the Project folder as *txt* file; this is named **average.txt**.
 
 *Each data set has ``str`` included in it for easier preview.*
-
-End.
