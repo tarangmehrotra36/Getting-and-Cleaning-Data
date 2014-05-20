@@ -43,5 +43,5 @@ data <- cbind(subj, x.mean.sd, y)
 write.table(data, './Project/merged.txt')
 
 # Creates a second, independent tidy data set with the average of each variable for each activity and each subject. 
-average <- aggregate(x=x, by = list(activities = y$activity, subj = subj$subject), mean)
+average <- aggregate(x=data, by=list(activities=data$activity, subj=data$subject), FUN=mean)
 write.table(average, './Project/average.txt')
