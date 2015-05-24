@@ -44,6 +44,7 @@ str(data)
 write.table(data, './Project/merged.txt', row.names = F)
 
 # Creates a second, independent tidy data set with the average of each variable for each activity and each subject. 
-average <- aggregate(x=data, by=list(activities=data$activity, subj=data$subject), FUN=mean)
-str(average)
-write.table(average, './Project/average.txt', row.names = F)
+average.df <- aggregate(x=data, by=list(activities=data$activity, subj=data$subject), FUN=mean)
+average.df <- average.df[, !(colnames(average.df) %in% c("subj", "activity"))]
+str(average.df)
+write.table(average.df, './Project/average.txt', row.names = F)
