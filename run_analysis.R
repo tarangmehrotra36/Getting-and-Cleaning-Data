@@ -1,50 +1,102 @@
-library(RCurl)
+library(data.table)
 
-if (!file.info('UCI HAR Dataset')$isdir) {
-  dataFile <- 'https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip'
-  dir.create('UCI HAR Dataset')
-  download.file(dataFile, 'UCI-HAR-dataset.zip', method='curl')
-  unzip('./UCI-HAR-dataset.zip')
+fileurl = 'https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip'
+
+if (!file.exists('./UCI HAR Dataset.zip')){
+
+  download.file(fileurl,'./UCI HAR Dataset.zip', mode = 'wb')
+
+  unzip("UCI HAR Dataset.zip", exdir = getwd())
+
 }
 
-# Merges the training and the test sets to create one data set.
-x.train <- read.table('./UCI HAR Dataset/train/X_train.txt')
-x.test <- read.table('./UCI HAR Dataset/test/X_test.txt')
-x <- rbind(x.train, x.test)
+ 
 
-subj.train <- read.table('./UCI HAR Dataset/train/subject_train.txt')
-subj.test <- read.table('./UCI HAR Dataset/test/subject_test.txt')
-subj <- rbind(subj.train, subj.test)
+ features <- read.csv('./UCI HAR Dataset/features.txt', header = FALSE, sep = ' ')
 
-y.train <- read.table('./UCI HAR Dataset/train/y_train.txt')
-y.test <- read.table('./UCI HAR Dataset/test/y_test.txt')
-y <- rbind(y.train, y.test)
+features <- as.character(features[,2])
 
-# Extracts only the measurements on the mean and standard deviation for each measurement. 
-features <- read.table('./UCI HAR Dataset/features.txt')
-mean.sd <- grep("-mean\\(\\)|-std\\(\\)", features[, 2])
-x.mean.sd <- x[, mean.sd]
+ 
 
-# Uses descriptive activity names to name the activities in the data set
-names(x.mean.sd) <- features[mean.sd, 2]
-names(x.mean.sd) <- tolower(names(x.mean.sd)) 
-names(x.mean.sd) <- gsub("\\(|\\)", "", names(x.mean.sd))
+data.train.x <- read.table('./UCI HAR Dataset/train/X_train.txt')
 
-activities <- read.table('./UCI HAR Dataset/activity_labels.txt')
-activities[, 2] <- tolower(as.character(activities[, 2]))
-activities[, 2] <- gsub("_", "", activities[, 2])
+data.train.activity <- read.csv('./UCI HAR Dataset/train/y_train.txt', header = FALSE, sep = ' ')
 
-y[, 1] = activities[y[, 1], 2]
-colnames(y) <- 'activity'
-colnames(subj) <- 'subject'
+data.train.subject <- read.csv('./UCI HAR Dataset/train/subject_train.txt',header = FALSE, sep = ' ')
 
-# Appropriately labels the data set with descriptive activity names.
-data <- cbind(subj, x.mean.sd, y)
-str(data)
-write.table(data, './Project/merged.txt', row.names = F)
+ 
 
-# Creates a second, independent tidy data set with the average of each variable for each activity and each subject. 
-average.df <- aggregate(x=data, by=list(activities=data$activity, subj=data$subject), FUN=mean)
-average.df <- average.df[, !(colnames(average.df) %in% c("subj", "activity"))]
-str(average.df)
-write.table(average.df, './Project/average.txt', row.names = F)
+ data.train <-  data.frame(data.train.subject, data.train.activity, data.train.x)
+
+names(data.train) <- c(c('subject', 'activity'), features)
+
+ 
+
+ data.test.x <- read.table('./UCI HAR Dataset/test/X_test.txt')
+
+data.test.activity <- read.csv('./UCI HAR Dataset/test/y_test.txt', header = FALSE, sep = ' ')
+
+data.test.subject <- read.csv('./UCI HAR Dataset/test/subject_test.txt', header = FALSE, sep = ' ')
+
+ 
+
+ data.test <-  data.frame(data.test.subject, data.test.activity, data.test.x)
+
+names(data.test) <- c(c('subject', 'activity'), features)
+
+ 
+
+ #1 merging the training and test data sets
+
+data.all <- rbind(data.train, data.test)
+
+ 
+
+ #2 Extracting measurements on the mean and standard deviation for each measurement
+
+mean_std.select <- grep('mean|std', features)
+
+data.sub <- data.all[,c(1,2,mean_std.select + 2)]
+
+ 
+
+ #3 Using decriptive activity names
+
+activity.labels <- read.table('./UCI HAR Dataset/activity_labels.txt', header = FALSE)
+
+activity.labels <- as.character(activity.labels[,2])
+
+data.sub$activity <- activity.labels[data.sub$activity]
+
+ 
+
+ #4 Using appropriate label names for variable names
+
+name.new <- names(data.sub)
+
+name.new <- gsub("[(][)]", "", name.new)
+
+name.new <- gsub("^t", "TimeDomain_", name.new)
+
+name.new <- gsub("^f", "FrequencyDomain_", name.new)
+
+name.new <- gsub("Acc", "Accelerometer", name.new)
+
+name.new <- gsub("Gyro", "Gyroscope", name.new)
+
+name.new <- gsub("Mag", "Magnitude", name.new)
+
+name.new <- gsub("-mean-", "_Mean_", name.new)
+
+name.new <- gsub("-std-", "_StandardDeviation_", name.new)
+
+name.new <- gsub("-", "_", name.new)
+
+names(data.sub) <- name.new
+
+ 
+#5 aggregation of each variable by activity and subject
+
+data.tidy <- aggregate(data.sub[,3:81], by = list(activity = data.sub$activity, subject = data.sub$subject),FUN = mean)
+
+write.table(x = data.tidy, file = "data_tidy.txt", row.names = FALSE)
